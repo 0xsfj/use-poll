@@ -60,3 +60,22 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+model PollQuestion {
+    id        String    @id @default(cuid())
+    createdAt DateTime  @default(now())
+    endsAt    DateTime?
+    question  String    @db.VarChar(255)
+    options   Json
+    Vote      Vote[]
+}
+
+model Vote {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    choice Int
+
+    questionId String
+    question   PollQuestion @relation(fields: [questionId], references: [id])
+}
