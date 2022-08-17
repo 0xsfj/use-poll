@@ -14,11 +14,14 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   return (
     <div>
-      <p>{data?.question}</p>
+      {data?.isOwner && <p>You Made This</p>}
+      <p>{data?.question?.question}</p>
 
-      {(data?.options as string[])?.map((option: string | number, key) => {
-        return <p key={key}>{option}</p>;
-      })}
+      {(data?.question?.options as string[])?.map(
+        (option: string | number, key) => {
+          return <p key={key}>{option}</p>;
+        }
+      )}
     </div>
   );
 };

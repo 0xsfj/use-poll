@@ -65,9 +65,15 @@ model PollQuestion {
     id        String    @id @default(cuid())
     createdAt DateTime  @default(now())
     endsAt    DateTime?
-    question  String    @db.VarChar(255)
-    options   Json
-    Vote      Vote[]
+
+    question String @db.VarChar(255)
+
+    ownerToken String @db.VarChar(255)
+
+    options Json
+    Vote    Vote[]
+
+    @@index([ownerToken])
 }
 
 model Vote {
