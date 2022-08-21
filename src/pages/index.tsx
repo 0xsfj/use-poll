@@ -17,7 +17,7 @@ const QuestionCreator: FC = () => {
   const client = trpc.useContext();
   const { mutate } = trpc.useMutation("questions.create", {
     onSuccess: () => {
-      client.invalidateQueries(["questions.get-all"]);
+      client.invalidateQueries(["questions.get-all-my-questions"]);
       reset();
     },
     onError: () => {
@@ -53,9 +53,11 @@ interface Question {
 }
 
 const Home: NextPage = () => {
-  const { data: sessionData, isLoading: sessionIsLoading } = trpc.useQuery([
-    "question.getSession",
-  ]);
+  const {
+    data: sessionData,
+    isLoading: sessionIsLoading,
+    isError,
+  } = trpc.useQuery(["question.getSession"]);
 
   // const { data: secretMessageData, isLoading: secretMessageIsLoading } =
   //   trpc.useQuery(["question.getSecretMessage"]);
@@ -64,7 +66,7 @@ const Home: NextPage = () => {
   //   "question.getSecretMessage",
   // ]);
 
-  const { data, isLoading } = trpc.useQuery(["questions.get-all"]);
+  const { data, isLoading } = trpc.useQuery(["questions.get-all-my-questions"]);
 
   const [questionsRef] = useAutoAnimate<HTMLDivElement>();
 
@@ -78,32 +80,38 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <nav>
-        <ul>
+        <ul className="absolute top-0 left-0 flex p-3 space-x-3 text-white">
           <li>
             <Link href="/">
-              <a>Home</a>
+              <a className="px-2 py-1 bg-blue-500 hover:bg-blue-600 uppercase rounded-md">
+                Home
+              </a>
             </Link>
           </li>
           <li>
             <Link
               href={!sessionData ? "/api/auth/signin" : "/api/auth/signout"}
             >
-              <a>{!sessionData ? "Sign In" : "Sign Out"}</a>
+              <a className="px-2 py-1 bg-blue-500 hover:bg-blue-600 uppercase rounded-md">
+                {!sessionData ? "Sign In" : "Sign Out"}
+              </a>
             </Link>
           </li>
         </ul>
-        <div className="flex flex-col items-center pb-10">
-          <Image
-            className="mb-3 w-24 h-24 rounded-full shadow-lg"
-            src={sessionData?.user?.image as string}
-            alt={sessionData?.user.name as string}
-            width={50}
-            height={50}
-          />
-          <h5 className="mb-1 text-xl font-medium text-gray-900">
+        <div className="absolute top-4 right-4 flex flex-col items-center p-4 bg-blue-500 text-white rounded-md">
+          {sessionData?.user && (
+            <Image
+              className="mb-3 w-24 h-24 rounded-full shadow-lg"
+              src={sessionData?.user?.image as string}
+              alt={sessionData?.user.name as string}
+              width={50}
+              height={50}
+            />
+          )}
+          <h5 className="mb-1 text-xl font-medium">
             {sessionIsLoading ? "Loading..." : sessionData?.user.name}
           </h5>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="text-sm text-gray-100 dark:text-gray-400">
             {sessionData?.user.email}
           </span>
         </div>
