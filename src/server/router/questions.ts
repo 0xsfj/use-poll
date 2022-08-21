@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createRouter } from "./context";
 import { TRPCError } from "@trpc/server";
+import { createQuestionValidator } from "../../shared/create-question-validator";
 
 export const questionRouter = createRouter()
   .query("get-all-questions", {
@@ -60,9 +61,7 @@ export const questionRouter = createRouter()
     },
   })
   .mutation("create", {
-    input: z.object({
-      question: z.string().min(5).max(500),
-    }),
+    input: createQuestionValidator,
     async resolve({ input, ctx }) {
       if (!ctx?.session?.user?.id) return { error: "Not authorized" };
 

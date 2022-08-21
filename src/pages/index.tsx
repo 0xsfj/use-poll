@@ -6,13 +6,22 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { JSONValue } from "superjson/dist/types";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import Layout from "../components/Layout";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createQuestionValidator } from "../shared/create-question-validator";
 
 type FormValues = {
   question: string;
 };
 
 const QuestionCreator = () => {
-  const { register, handleSubmit, reset } = useForm<FormValues>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(createQuestionValidator),
+  });
   const client = trpc.useContext();
   const { mutate } = trpc.useMutation("questions.create", {
     onSuccess: () => {
@@ -24,17 +33,31 @@ const QuestionCreator = () => {
     },
   });
 
+  console.log(errors);
+
   const onSubmit: SubmitHandler<FormValues> = (data) => {
     mutate({ question: data.question });
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="lg-:w-2/3 flex">
-      <input
-        placeholder="Question"
-        className="border-blue-500 w-full border-2 rounded-md py-2 px-4 mr-4 hover:bg-slate-50 selection:bg-slate-50"
-        {...register("question")}
-      />
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="w-full max-w-lg flex items-start space-x-4"
+    >
+      <div className="w-full">
+        <label>
+          <input
+            placeholder="Question"
+            className="border-blue-500 w-full border-2 rounded-md py-2 px-4 hover:bg-slate-50 selection:bg-slate-50 mb-2"
+            {...register("question")}
+          />
+        </label>
+        {errors.question && (
+          <p className="bg-red-600 text-white text-xs py-1 px-2 rounded-md">
+            {errors.question.message}
+          </p>
+        )}
+      </div>
       <button
         type="submit"
         className="bg-blue-500 py-2 px-4 rounded-md border-2 border-blue-500 text-white uppercase"
@@ -72,7 +95,7 @@ const Home: NextPage = () => {
       <QuestionCreator />
       <div
         ref={questionsRef}
-        className="grid gap-3 pt-3 mt-3 text-center md:grid-cols-2 lg:w-2/3"
+        className="grid gap-3 pt-3 mt-3 text-center md:grid-cols-2 w-full max-w-lg"
       >
         {data?.map((question) => {
           return (
