@@ -1,5 +1,4 @@
 import type { NextPage } from "next";
-import { FC } from "react";
 
 import { trpc } from "../utils/trpc";
 import Link from "next/link";
@@ -12,7 +11,7 @@ type FormValues = {
   question: string;
 };
 
-const QuestionCreator: FC = () => {
+const QuestionCreator = () => {
   const { register, handleSubmit, reset } = useForm<FormValues>();
   const client = trpc.useContext();
   const { mutate } = trpc.useMutation("questions.create", {
@@ -30,10 +29,10 @@ const QuestionCreator: FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="lg-:w-2/3 flex">
       <input
         placeholder="Question"
-        className="border-blue-500 border-2 rounded-md py-2 px-4 mr-4"
+        className="border-blue-500 w-full border-2 rounded-md py-2 px-4 mr-4 hover:bg-slate-50 selection:bg-slate-50"
         {...register("question")}
       />
       <button
@@ -69,7 +68,7 @@ const Home: NextPage = () => {
       <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
         Use <span className="text-blue-500">Poll</span>
       </h1>
-      <p className="text-2xl text-gray-700">Create a Poll</p>
+      <p className="text-2xl text-gray-700 mb-4">Create a Poll</p>
       <QuestionCreator />
       <div
         ref={questionsRef}

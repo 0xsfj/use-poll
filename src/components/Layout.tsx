@@ -54,7 +54,7 @@ const Layout = ({ children }: any) => {
           </span>
         </div>
       </nav>
-      <main className="container mx-auto flex flex-col items-center justify-center h-screen p-4">
+      <main className="container mx-auto flex flex-col items-center mt-8 h-screen p-4">
         {children}
       </main>
     </>
