@@ -68,7 +68,7 @@ export const questionRouter = createRouter()
       return await prisma?.pollQuestion.create({
         data: {
           question: input.question,
-          options: [],
+          options: input.options,
           user: {
             connect: {
               id: ctx.session.user.id,

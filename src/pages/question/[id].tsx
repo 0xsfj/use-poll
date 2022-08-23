@@ -2,6 +2,12 @@ import { useRouter } from "next/router";
 import Layout from "../../components/Layout";
 import { trpc } from "../../utils/trpc";
 
+type Option = {
+  option: {
+    option: string;
+  };
+};
+
 const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["questions.get-by-id", { id }]);
 
@@ -16,18 +22,18 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
   console.log(data);
 
   return (
-    <div className="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 p-4">
+    <div className="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 dark:text-white p-4">
       {data?.isOwner && <p className="text-sm">You Made This</p>}
       <h1 className="text-4xl">{data?.question?.question}</h1>
       <h3 className="text-lg">
         Created on: {data?.question?.createdAt.toDateString()}
       </h3>
 
-      {(data?.question?.options as string[])?.map(
-        (option: string | number, key) => {
-          return <p key={key}>{option}</p>;
-        }
-      )}
+      {data?.question?.options?.map((option: Option, key: number) => {
+        console.log(option);
+
+        return <p key={key}>{option.option}</p>;
+      })}
     </div>
   );
 };

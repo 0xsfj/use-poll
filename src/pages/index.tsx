@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 
 import { trpc } from "../utils/trpc";
 import Link from "next/link";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { JSONValue } from "superjson/dist/types";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import Layout from "../components/Layout";
@@ -11,17 +11,32 @@ import { createQuestionValidator } from "../shared/create-question-validator";
 
 type FormValues = {
   question: string;
+  options: {
+    option: string;
+  }[];
 };
 
 const QuestionCreator = () => {
   const {
+    control,
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(createQuestionValidator),
+    defaultValues: {
+      options: [{ option: "Yes" }, { option: "No" }],
+    },
+    // mode: "onBlur",
   });
+  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
+    {
+      name: "options",
+      control,
+    }
+  );
+
   const client = trpc.useContext();
   const { mutate } = trpc.useMutation("questions.create", {
     onSuccess: () => {
@@ -36,14 +51,11 @@ const QuestionCreator = () => {
   console.log(errors);
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    mutate({ question: data.question });
+    mutate({ question: data.question, options: data.options });
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-full max-w-lg flex items-start space-x-4"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-lg ">
       <div className="w-full">
         <label>
           <input
@@ -58,6 +70,51 @@ const QuestionCreator = () => {
           </p>
         )}
       </div>
+      <div className="">
+        {errors.options && (
+          <p className="bg-red-600 text-white text-xs py-1 px-2 rounded-md">
+            {errors.options.message}
+          </p>
+        )}
+        {fields.map((field, index) => {
+          return (
+            <div key={index} className="flex w-full">
+              <label>
+                <input
+                  placeholder="Option"
+                  className="border-blue-500 w-full border-2 rounded-md py-2 px-4 hover:bg-slate-50 selection:bg-slate-50 mb-2"
+                  {...register(`options.${index}.option` as const, {
+                    required: true,
+                  })}
+                  key={field.id}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => remove(index)}
+                className="py-2 px-4 rounded-md border-2 border-red-500 uppercase"
+              >
+                Delete
+              </button>
+              {errors?.options?.[index]?.option && (
+                <p className="bg-red-600 text-white text-xs py-1 px-2 rounded-md">
+                  {errors?.options?.[index]?.option?.message}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <button
+        type="button"
+        onClick={() =>
+          append({
+            option: "",
+          })
+        }
+      >
+        APPEND
+      </button>
       <button
         type="submit"
         className="bg-blue-500 py-2 px-4 rounded-md border-2 border-blue-500 text-white uppercase"
@@ -71,7 +128,9 @@ const QuestionCreator = () => {
 interface Question {
   id: string;
   question: string;
-  options: JSON;
+  options: {
+    option: string;
+  }[];
 }
 
 const Home: NextPage = () => {
@@ -117,11 +176,15 @@ export default Home;
 type QuestionCardProps = {
   id: string;
   name: string;
-  options: string[] | JSONValue;
+  options: {
+    option: string;
+  }[];
 };
 
 const QuestionCard = ({ id, name, options }: QuestionCardProps) => {
   console.log(options);
+
+  if (!options) <p>No Options</p>;
 
   return (
     <section className="flex flex-col justify-center p-6 duration-500 border-2 border-gray-500 rounded shadow-xl motion-safe:hover:scale-105">
@@ -130,10 +193,11 @@ const QuestionCard = ({ id, name, options }: QuestionCardProps) => {
           <h2 className="text-lg text-gray-700 font-bold">{name}</h2>
         </a>
       </Link>
-      {(options as string[])?.map((option: string | number, key) => {
+      {options.map((option, key) => {
+        console.log(option);
         return (
           <p key={key} className="text-sm">
-            {option}
+            {option.option}
           </p>
         );
       })}
