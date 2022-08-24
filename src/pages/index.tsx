@@ -8,6 +8,7 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 import Layout from "../components/Layout";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createQuestionValidator } from "../shared/create-question-validator";
+import toast, { Toaster } from "react-hot-toast";
 
 type FormValues = {
   question: string;
@@ -41,6 +42,15 @@ const QuestionCreator = () => {
   const { mutate } = trpc.useMutation("questions.create", {
     onSuccess: () => {
       client.invalidateQueries(["questions.get-all-my-questions"]);
+      toast.custom((t) => (
+        <div
+          className={`rounded-full bg-white px-6 py-4 shadow-md ${
+            t.visible ? "animate-enter" : "animate-leave"
+          }`}
+        >
+          Added Question 👋
+        </div>
+      ));
       reset();
     },
     onError: () => {
@@ -56,33 +66,33 @@ const QuestionCreator = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-lg ">
-      <div className="w-full">
+      <div className="mb-4 w-full">
         <label>
           <input
             placeholder="Question"
-            className="border-blue-500 w-full border-2 rounded-md py-2 px-4 hover:bg-slate-50 selection:bg-slate-50 mb-2"
+            className="w-full rounded-md border-2 border-blue-500  py-2 px-4 selection:bg-slate-50 hover:bg-slate-50"
             {...register("question")}
           />
         </label>
         {errors.question && (
-          <p className="bg-red-600 text-white text-xs py-1 px-2 rounded-md">
+          <p className="rounded-md bg-red-600 py-1 px-2 text-xs text-white">
             {errors.question.message}
           </p>
         )}
       </div>
       <div className="">
         {errors.options && (
-          <p className="bg-red-600 text-white text-xs py-1 px-2 rounded-md">
+          <p className="rounded-md bg-red-600 py-1 px-2 text-xs text-white">
             {errors.options.message}
           </p>
         )}
         {fields.map((field, index) => {
           return (
-            <div key={index} className="flex w-full">
-              <label>
+            <div key={index} className="mb-4 flex w-full align-top">
+              <label className="mr-2 w-full">
                 <input
                   placeholder="Option"
-                  className="border-blue-500 w-full border-2 rounded-md py-2 px-4 hover:bg-slate-50 selection:bg-slate-50 mb-2"
+                  className="w-full rounded-md border-2 border-blue-500 py-2 px-4 selection:bg-slate-50 hover:bg-slate-50"
                   {...register(`options.${index}.option` as const, {
                     required: true,
                   })}
@@ -92,12 +102,12 @@ const QuestionCreator = () => {
               <button
                 type="button"
                 onClick={() => remove(index)}
-                className="py-2 px-4 rounded-md border-2 border-red-500 uppercase"
+                className="rounded-md border-2 border-red-500 py-2 px-4 uppercase"
               >
                 Delete
               </button>
               {errors?.options?.[index]?.option && (
-                <p className="bg-red-600 text-white text-xs py-1 px-2 rounded-md">
+                <p className="rounded-md bg-red-600 py-1 px-2 text-xs text-white">
                   {errors?.options?.[index]?.option?.message}
                 </p>
               )}
@@ -106,6 +116,7 @@ const QuestionCreator = () => {
         })}
       </div>
       <button
+        className="mr-4 rounded-md border-2 border-blue-500 py-2 px-4 uppercase"
         type="button"
         onClick={() =>
           append({
@@ -113,11 +124,11 @@ const QuestionCreator = () => {
           })
         }
       >
-        APPEND
+        Add Question
       </button>
       <button
         type="submit"
-        className="bg-blue-500 py-2 px-4 rounded-md border-2 border-blue-500 text-white uppercase"
+        className="rounded-md border-2 border-blue-500 bg-blue-500 py-2 px-4 uppercase text-white"
       >
         Submit
       </button>
@@ -147,14 +158,14 @@ const Home: NextPage = () => {
 
   return (
     <Layout>
-      <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
+      <h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
         Use <span className="text-blue-500">Poll</span>
       </h1>
-      <p className="text-2xl text-gray-700 mb-4">Create a Poll</p>
+      <p className="mb-4 text-2xl text-gray-700">Create a Poll</p>
       <QuestionCreator />
       <div
         ref={questionsRef}
-        className="grid gap-3 pt-3 mt-3 text-center md:grid-cols-2 w-full max-w-lg"
+        className="mt-3 grid w-full max-w-lg gap-3 pt-3 text-center md:grid-cols-2"
       >
         {data?.map((question) => {
           return (
@@ -167,6 +178,7 @@ const Home: NextPage = () => {
           );
         })}
       </div>
+      <Toaster gutter={30} />
     </Layout>
   );
 };
@@ -187,10 +199,10 @@ const QuestionCard = ({ id, name, options }: QuestionCardProps) => {
   if (!options) <p>No Options</p>;
 
   return (
-    <section className="flex flex-col justify-center p-6 duration-500 border-2 border-gray-500 rounded shadow-xl motion-safe:hover:scale-105">
+    <section className="flex flex-col justify-center rounded border-2 border-gray-500 p-6 shadow-xl duration-500 motion-safe:hover:scale-105">
       <Link href={`/question/${id}`}>
         <a>
-          <h2 className="text-lg text-gray-700 font-bold">{name}</h2>
+          <h2 className="text-lg font-bold text-gray-700">{name}</h2>
         </a>
       </Link>
       {options.map((option, key) => {

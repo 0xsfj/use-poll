@@ -60,6 +60,26 @@ export const questionRouter = createRouter()
       return { question, isOwner: isOwnerCheck };
     },
   })
+  .mutation("vote-on-question", {
+    input: z.object({
+      questionId: z.string(),
+      option: z.number().min(0).max(100),
+    }),
+    async resolve({ input, ctx }) {
+      if (!ctx?.session?.user?.id) return { error: "Not authorized" };
+
+      return await prisma?.vote.create({
+        data: {
+          question: input.question,
+          user: {
+            connect: {
+              id: ctx.session.user.id,
+            },
+          },
+        },
+      });
+    },
+  })
   .mutation("create", {
     input: createQuestionValidator,
     async resolve({ input, ctx }) {

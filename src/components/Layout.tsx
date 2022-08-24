@@ -18,10 +18,10 @@ const Layout = ({ children }: any) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <nav>
-        <ul className="absolute top-0 left-0 flex p-3 space-x-3 text-white">
+        <ul className="absolute top-0 left-0 flex space-x-3 p-3 text-white">
           <li>
             <Link href="/">
-              <a className="px-2 py-1 bg-blue-500 hover:bg-blue-600 uppercase rounded-md">
+              <a className="rounded-md bg-blue-500 px-2 py-1 uppercase hover:bg-blue-600">
                 New Question
               </a>
             </Link>
@@ -30,16 +30,16 @@ const Layout = ({ children }: any) => {
             <Link
               href={!sessionData ? "/api/auth/signin" : "/api/auth/signout"}
             >
-              <a className="px-2 py-1 bg-blue-500 hover:bg-blue-600 uppercase rounded-md">
+              <a className="rounded-md bg-blue-500 px-2 py-1 uppercase hover:bg-blue-600">
                 {!sessionData ? "Sign In" : "Sign Out"}
               </a>
             </Link>
           </li>
         </ul>
-        <div className="absolute top-4 right-4 flex flex-col items-center p-4 bg-blue-500 text-white rounded-md">
+        <div className="absolute top-4 right-4 flex flex-col items-center rounded-md bg-blue-500 p-4 text-white">
           {sessionData?.user && (
             <Image
-              className="mb-3 w-24 h-24 rounded-full shadow-lg"
+              className="mb-3 h-24 w-24 rounded-full shadow-lg"
               src={sessionData?.user?.image as string}
               alt={sessionData?.user.name as string}
               width={50}
@@ -49,12 +49,12 @@ const Layout = ({ children }: any) => {
           <h5 className="mb-1 text-xl font-medium">
             {sessionIsLoading ? "Loading..." : sessionData?.user.name}
           </h5>
-          <span className="text-sm text-gray-100 dark:text-gray-400">
+          <span className="text-sm text-gray-100">
             {sessionData?.user.email}
           </span>
         </div>
       </nav>
-      <main className="container mx-auto flex flex-col items-center mt-8 h-screen p-4">
+      <main className="container mx-auto mt-8 flex h-screen flex-col items-center p-4">
         {children}
       </main>
     </>
