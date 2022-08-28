@@ -57,7 +57,14 @@ export const questionRouter = createRouter()
           id: input.id,
         },
       });
-      return { question, isOwner: isOwnerCheck };
+
+      const results = await ctx.prisma.vote.findMany({
+        where: {
+          questionId: question?.id,
+        },
+      });
+
+      return { question, isOwner: isOwnerCheck, results };
     },
   })
   .mutation("vote-on-question", {
@@ -66,16 +73,15 @@ export const questionRouter = createRouter()
       option: z.number().min(0).max(100),
     }),
     async resolve({ input, ctx }) {
-      if (!ctx?.session?.user?.id) return { error: "Not authorized" };
+      const voterToken: string = ctx.req?.cookies["voter-token"] ?? "";
+
+      console.log(voterToken);
 
       return await prisma?.vote.create({
         data: {
-          question: input.question,
-          user: {
-            connect: {
-              id: ctx.session.user.id,
-            },
-          },
+          questionId: input.questionId,
+          choice: input.option,
+          voterToken: voterToken,
         },
       });
     },

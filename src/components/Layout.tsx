@@ -36,23 +36,25 @@ const Layout = ({ children }: any) => {
             </Link>
           </li>
         </ul>
-        <div className="absolute top-4 right-4 flex flex-col items-center rounded-md bg-blue-500 p-4 text-white">
-          {sessionData?.user && (
-            <Image
-              className="mb-3 h-24 w-24 rounded-full shadow-lg"
-              src={sessionData?.user?.image as string}
-              alt={sessionData?.user.name as string}
-              width={50}
-              height={50}
-            />
-          )}
-          <h5 className="mb-1 text-xl font-medium">
-            {sessionIsLoading ? "Loading..." : sessionData?.user.name}
-          </h5>
-          <span className="text-sm text-gray-100">
-            {sessionData?.user.email}
-          </span>
-        </div>
+        {sessionData && (
+          <div className="absolute top-4 right-4 flex flex-col items-center rounded-md bg-blue-500 p-4 text-white">
+            {sessionData?.user && (
+              <Image
+                className="mb-3 h-24 w-24 rounded-full shadow-lg"
+                src={sessionData?.user?.image as string}
+                alt={sessionData?.user.name as string}
+                width={50}
+                height={50}
+              />
+            )}
+            <h5 className="mb-1 text-xl font-medium">
+              {sessionData?.user.name}
+            </h5>
+            <span className="text-sm text-gray-100">
+              {sessionData?.user.email}
+            </span>
+          </div>
+        )}
       </nav>
       <main className="container mx-auto mt-8 flex h-screen flex-col items-center p-4">
         {children}

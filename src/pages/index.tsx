@@ -115,23 +115,25 @@ const QuestionCreator = () => {
           );
         })}
       </div>
-      <button
-        className="mr-4 rounded-md border-2 border-blue-500 py-2 px-4 uppercase"
-        type="button"
-        onClick={() =>
-          append({
-            option: "",
-          })
-        }
-      >
-        Add Question
-      </button>
-      <button
-        type="submit"
-        className="rounded-md border-2 border-blue-500 bg-blue-500 py-2 px-4 uppercase text-white"
-      >
-        Submit
-      </button>
+      <div className="flex justify-between">
+        <button
+          className="mr-4 rounded-md border-2 border-blue-500 py-2 px-4 uppercase"
+          type="button"
+          onClick={() =>
+            append({
+              option: "",
+            })
+          }
+        >
+          Add Question
+        </button>
+        <button
+          type="submit"
+          className="rounded-md border-2 border-blue-500 bg-blue-500 py-2 px-4 uppercase text-white"
+        >
+          Submit
+        </button>
+      </div>
     </form>
   );
 };
@@ -152,6 +154,7 @@ const Home: NextPage = () => {
   //   "question.getSecretMessage",
   // ]);
 
+  // const { data, isLoading } = trpc.useQuery(["questions.get-all-my-questions"]);
   const { data, isLoading } = trpc.useQuery(["questions.get-all-my-questions"]);
 
   const [questionsRef] = useAutoAnimate<HTMLDivElement>();
@@ -194,25 +197,13 @@ type QuestionCardProps = {
 };
 
 const QuestionCard = ({ id, name, options }: QuestionCardProps) => {
-  console.log(options);
-
-  if (!options) <p>No Options</p>;
-
   return (
-    <section className="flex flex-col justify-center rounded border-2 border-gray-500 p-6 shadow-xl duration-500 motion-safe:hover:scale-105">
-      <Link href={`/question/${id}`}>
-        <a>
+    <Link href={`/question/${id}`}>
+      <a>
+        <section className="flex flex-col justify-center rounded border-2 border-gray-500 p-6 shadow-xl duration-500 motion-safe:hover:scale-105">
           <h2 className="text-lg font-bold text-gray-700">{name}</h2>
-        </a>
-      </Link>
-      {options.map((option, key) => {
-        console.log(option);
-        return (
-          <p key={key} className="text-sm">
-            {option.option}
-          </p>
-        );
-      })}
-    </section>
+        </section>
+      </a>
+    </Link>
   );
 };
