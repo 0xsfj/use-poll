@@ -37,6 +37,7 @@ export const questionRouter = createRouter()
     input: z.object({ id: z.string() }),
     async resolve({ input, ctx }) {
       const sessionToken = ctx.req?.cookies["next-auth.session-token"] ?? "";
+      const voterToken: string = ctx.req?.cookies["voter-token"] ?? "";
 
       const questionUser = await ctx.prisma.user.findMany({
         where: {
@@ -64,7 +65,30 @@ export const questionRouter = createRouter()
         },
       });
 
-      return { question, isOwner: isOwnerCheck, results };
+      const votersVote = results.map(
+        (vote: { voterToken: string; choice: number }) => {
+          return voterToken === vote.voterToken && vote.choice;
+        }
+      );
+
+      const op = question?.options as unknown as { name: string };
+
+      const resultsCount = op.map((_option: string, index: number) => {
+        const count = results.reduce(
+          (acc: number, cur: any) => (cur.choice === index ? ++acc : acc),
+          0
+        );
+
+        return count;
+      });
+
+      return {
+        question,
+        isOwner: isOwnerCheck,
+        // results,
+        voterResult: votersVote[0],
+        resultsCount,
+      };
     },
   })
   .mutation("vote-on-question", {

@@ -56,15 +56,25 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
 
       <div className="flex flex-col space-y-3">
         {data?.question?.options?.map((option: Option, key: number) => {
-          console.log(option.option);
+          console.log(data.voterResult);
+
+          const disabledCheck =
+            data.voterResult === false || !data.voterResult ? false : true;
+
+          console.log(`Disabled: ${disabledCheck}`);
 
           return (
             <button
               key={key}
               onClick={() => vote(key)}
-              className={`rounded-md bg-blue-500 p-2`}
+              className={`rounded-md p-2 ${
+                data.voterResult === key
+                  ? "bg-red-500"
+                  : "bg-slate-100 dark:bg-slate-700"
+              }`}
+              disabled={disabledCheck}
             >
-              {option.option}
+              {option.option}: {data.resultsCount[key]}
             </button>
           );
         })}

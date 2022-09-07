@@ -29,7 +29,6 @@ const QuestionCreator = () => {
     defaultValues: {
       options: [{ option: "Yes" }, { option: "No" }],
     },
-    // mode: "onBlur",
   });
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
@@ -176,7 +175,6 @@ const Home: NextPage = () => {
               key={question.id}
               id={question.id}
               name={question.question}
-              options={question.options}
             />
           );
         })}
@@ -191,12 +189,9 @@ export default Home;
 type QuestionCardProps = {
   id: string;
   name: string;
-  options: {
-    option: string;
-  }[];
 };
 
-const QuestionCard = ({ id, name, options }: QuestionCardProps) => {
+const QuestionCard = ({ id, name }: QuestionCardProps) => {
   return (
     <Link href={`/question/${id}`}>
       <a>
