@@ -11,6 +11,7 @@ type Option = {
 
 const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
   const client = trpc.useContext();
+  const router = useRouter();
 
   const { data, isLoading } = trpc.useQuery(["questions.get-by-id", { id }]);
 
@@ -32,6 +33,18 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
     },
   });
 
+  const { mutate: mutateDeleteQuestion } = trpc.useMutation(
+    "questions.delete",
+    {
+      onSuccess: () => {
+        router.push("/");
+      },
+      onError: () => {
+        console.log(`Error`);
+      },
+    }
+  );
+
   const vote = (voteId: number) => {
     mutate({ questionId: id, option: voteId });
   };
@@ -46,9 +59,21 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   console.log(data);
 
+  const deleteQuestion = () => {
+    console.log(`Delete`);
+    mutateDeleteQuestion({ questionId: id });
+  };
+
   return (
     <div className="max-w-sm rounded-lg border border-gray-200 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-      {data?.isOwner && <p className="text-sm">You Made This</p>}
+      {data?.isOwner && (
+        <div className="flex justify-between">
+          <p className="text-sm">You Made This</p>
+          <button onClick={deleteQuestion} className="text-sm uppercase">
+            Delete
+          </button>
+        </div>
+      )}
       <h1 className="text-4xl">{data?.question?.question}</h1>
       <h3 className="mb-4 text-lg">
         Created on: {data?.question?.createdAt.toDateString()}

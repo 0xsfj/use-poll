@@ -71,7 +71,10 @@ export const questionRouter = createRouter()
         }
       );
 
-      const op = question?.options as unknown as { name: string };
+      const op = question?.options as unknown as {
+        map(arg0: (_option: string, index: number) => number): unknown;
+        name: string;
+      };
 
       const resultsCount = op.map((_option: string, index: number) => {
         const count = results.reduce(
@@ -108,6 +111,26 @@ export const questionRouter = createRouter()
           voterToken: voterToken,
         },
       });
+    },
+  })
+  .mutation("delete", {
+    input: z.object({
+      questionId: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      const deleteQuestion = await prisma?.pollQuestion.delete({
+        where: {
+          id: input.questionId,
+        },
+      });
+
+      const deleteVotes = await prisma?.vote.deleteMany({
+        where: {
+          questionId: input.questionId,
+        },
+      });
+
+      return { deleteQuestion, deleteVotes };
     },
   })
   .mutation("create", {
